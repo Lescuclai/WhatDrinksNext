@@ -3,6 +3,8 @@ import { useForm, Controller } from "react-hook-form";
 import { TextInput, Button } from "react-native-paper";
 import { View, StyleSheet, Text, Image, ScrollView } from "react-native";
 import * as ImagePicker from "expo-image-picker";
+import { addDoc, collection, doc, getDoc } from "firebase/firestore";
+import { db } from "../../firebase";
 
 export default function Beer({ navigation }) {
   const [image, setImage] = useState(null);
@@ -11,13 +13,29 @@ export default function Beer({ navigation }) {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm({ mode: "onChange" });
+  } = useForm({
+    mode: "onChange",
+    defaultValues: {
+      nom: "",
+      producteur: "",
+      origine: "",
+      categorie: "",
+      annee: "",
+      aromes: "",
+      alcool: "",
+      note: "",
+      commentaire: "",
+    },
+  });
 
-  const onSave = (data) => {
+  const onSave = async (data) => {
     try {
-      alert(data.producteur);
-    } catch {
-      alert("oh no");
+      await addDoc(collection(db, "drinks"), {
+        type: "biere",
+        ...data,
+      });
+    } catch (error) {
+      console.log("error onSave", error);
     }
   };
 
