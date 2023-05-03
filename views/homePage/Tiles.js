@@ -10,17 +10,23 @@ export default function Tiles({ navigation }) {
       <ImageBackground source={bierre} style={styles.images}>
         <Text
           style={styles.text}
-          onPress={() => navigation.navigate("Beers List")}
-        >
-          Beer
+          onPress={() =>
+            navigation.navigate("Liste des boissons", {
+              params: { type: "biere" },
+            })
+          }>
+          Bière
         </Text>
       </ImageBackground>
 
       <ImageBackground source={vin} style={[styles.images, styles.rightImage]}>
         <Text
           style={styles.text}
-          // onPress={() => navigation.navigate("Wines List")}
-        >
+          onPress={() =>
+            navigation.navigate("Liste des boissons", {
+              params: { type: "vin" },
+            })
+          }>
           Wine
         </Text>
       </ImageBackground>

@@ -3,9 +3,9 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Provider as PaperProvider } from "react-native-paper";
 
 import HomePage from "./views/homePage";
-import BeerList from "./views/beerPage/BeerList";
-import BeerPage from "./views/beerPage/Beer";
-import AddBeerPage from "./views/beerPage/AddBeer";
+import DrinkList from "./views/drink/DrinkList";
+import Drink from "./views/drink/Drink";
+import DrinkCreate from "./views/drink/DrinkCreate";
 
 const { Navigator, Screen } = createNativeStackNavigator();
 
@@ -15,10 +15,9 @@ export default function App() {
       <NavigationContainer>
         <Navigator>
           <Screen name='Home' component={HomePage} />
-          <Screen name='Beers List' component={BeerList} />
-          {/* <Screen name="Wines List" component={WineList} /> */}
-          <Screen name='Beer' component={BeerPage} />
-          <Screen name='Add Beer' component={AddBeerPage} />
+          <Screen name='Liste des boissons' component={DrinkList} />
+          <Screen name='Boisson' component={Drink} />
+          <Screen name='Ajouter boisson' component={DrinkCreate} />
         </Navigator>
       </NavigationContainer>
     </PaperProvider>

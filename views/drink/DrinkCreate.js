@@ -6,7 +6,7 @@ import * as ImagePicker from "expo-image-picker";
 import { addDoc, collection, doc, getDoc } from "firebase/firestore";
 import { db } from "../../firebase";
 
-export default function Beer({ navigation }) {
+export default function DrinkCreate({ navigation }) {
   const [image, setImage] = useState(null);
 
   const {
@@ -32,6 +32,7 @@ export default function Beer({ navigation }) {
     try {
       await addDoc(collection(db, "drinks"), {
         type: "biere",
+        createAt: Date.now(),
         ...data,
       });
     } catch (error) {
