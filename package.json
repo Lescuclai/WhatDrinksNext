@@ -18,7 +18,8 @@
     "react": "^18.2.0",
     "react-hook-form": "^7.43.9",
     "react-native": "^0.71.7",
-    "react-native-paper": "^5.7.0"
+    "react-native-paper": "^5.7.0",
+    "react-native-stock-star-rating": "^1.0.6"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

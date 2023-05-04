@@ -3,18 +3,21 @@ import { useForm, Controller } from "react-hook-form";
 import { TextInput, Button } from "react-native-paper";
 import { View, StyleSheet, Text, Image, ScrollView } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import { addDoc, collection, doc, getDoc } from "firebase/firestore";
+import { addDoc, collection } from "firebase/firestore";
 import { db } from "../../firebase";
+import { RatingInput } from "react-native-stock-star-rating";
+import upload from "../../firebase/upload";
 
-export default function DrinkCreate({ navigation }) {
+export default function DrinkCreate({ route }) {
   const [image, setImage] = useState(null);
+  const [rating, setRating] = React.useState(0);
+  const { params } = route.params;
 
   const {
     control,
     handleSubmit,
     formState: { errors },
   } = useForm({
-    mode: "onChange",
     defaultValues: {
       nom: "",
       producteur: "",
@@ -23,17 +26,21 @@ export default function DrinkCreate({ navigation }) {
       annee: "",
       aromes: "",
       alcool: "",
-      note: "",
       commentaire: "",
+      note: 0,
     },
   });
-
   const onSave = async (data) => {
     try {
+      const response = await fetch(image);
+      const blob = await response.blob();
+      const url = await upload(blob);
       await addDoc(collection(db, "drinks"), {
-        type: "biere",
-        createAt: Date.now(),
         ...data,
+        type: params.type,
+        image: url,
+        note: rating,
+        createAt: Date.now(),
       });
     } catch (error) {
       console.log("error onSave", error);
@@ -54,6 +61,10 @@ export default function DrinkCreate({ navigation }) {
   };
 
   const data = [
+    {
+      label: "Note",
+      key: "note",
+    },
     {
       label: "Nom",
       key: "nom",
@@ -83,24 +94,20 @@ export default function DrinkCreate({ navigation }) {
       key: "alcool",
     },
     {
-      label: "Note",
-      key: "note",
-    },
-    {
       label: "Commentaire",
       key: "commentaire",
     },
   ];
-
   return (
     <ScrollView>
-      <View style={styles.presBeerContainer}>
+      <View style={styles.formContainer}>
         <View
           style={{
             flex: 1,
             alignItems: "center",
             justifyContent: "center",
-            margin: 5,
+            margin: 20,
+            marginBottom: 20,
           }}>
           <Button mode='elevated' onPress={pickImage}>
             Choisir une photo
@@ -113,24 +120,41 @@ export default function DrinkCreate({ navigation }) {
             <View key={key}>
               <Controller
                 control={control}
-                // rules={{
-                //   required: true,
-                // }}
+                rules={{
+                  required: key === "nom" && true,
+                }}
                 name={key}
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <TextInput
-                    label={label}
-                    contained
-                    style={styles.input}
-                    onBlur={onBlur}
-                    onChangeText={(value) => onChange(value)}
-                    value={value}
-                    multiline={key === "commentaire"}
-                    error={Boolean(errors.root)}
-                  />
-                )}
+                render={({ field: { onChange, onBlur, value } }) =>
+                  key === "note" ? (
+                    <View style={styles.container}>
+                      <Text>Note</Text>
+                      <RatingInput
+                        rating={rating}
+                        setRating={setRating}
+                        size={30}
+                        maxStars={5}
+                        bordered={false}
+                      />
+                    </View>
+                  ) : (
+                    <TextInput
+                      label={label === "Nom" ? `${label}*` : label}
+                      contained
+                      style={styles.input}
+                      onBlur={onBlur}
+                      onChangeText={(value) => onChange(value)}
+                      value={value}
+                      multiline={key === "commentaire"}
+                      error={Boolean(errors.root)}
+                    />
+                  )
+                }
               />
-              {errors.key && <Text>This is required.</Text>}
+              {errors.key && (
+                <Text style={{ fontSize: 50, margin: "15px" }}>
+                  This is required.
+                </Text>
+              )}
             </View>
           );
         })}
@@ -143,7 +167,7 @@ export default function DrinkCreate({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  presBeerContainer: {
+  formContainer: {
     flex: 1,
     padding: 5,
     justifyContent: "center",
@@ -161,6 +185,6 @@ const styles = StyleSheet.create({
     margin: 5,
   },
   button: {
-    marginBottom: 10,
+    marginBottom: 20,
   },
 });

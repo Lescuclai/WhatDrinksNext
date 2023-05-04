@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Button } from "react-native-paper";
 import { db } from "../../firebase";
 import { collection, query, where, getDocs } from "firebase/firestore";
+import { Rating } from "react-native-stock-star-rating";
 
 import {
   View,
@@ -34,21 +35,6 @@ export default function DrinkList({ navigation, route }) {
     };
     get();
   }, []);
-
-  const beers = [
-    { name: "tutu", stars: 5, img: foam },
-    { name: "titi", stars: 4, img: foam },
-    { name: "tata", stars: 5, img: foam },
-    { name: "tete", stars: 3, img: foam },
-    { name: "yoyo", stars: 1, img: foam },
-    { name: "yaya", stars: 2, img: foam },
-    { name: "yuyu", stars: 5, img: foam },
-    { name: "lili", stars: 4, img: foam },
-    { name: "lala", stars: 5, img: foam },
-    { name: "lulu", stars: 3, img: foam },
-    { name: "fifi", stars: 1, img: foam },
-    { name: "fafa", stars: 2, img: foam },
-  ];
   return (
     <View style={styles.container}>
       <Header
@@ -71,19 +57,23 @@ export default function DrinkList({ navigation, route }) {
                     params: { type: params.type },
                   })
                 }>
-                {/* <Image
-                  source={drink.img}
+                <Image
+                  source={{ uri: drink.image }}
                   style={{ width: 100, height: 100, borderRadius: 50 }}
-                /> */}
+                />
                 <Text style={{ textAlign: "center" }}>{drink.nom}</Text>
-                <Text style={{ textAlign: "center" }}>{drink.note}</Text>
+                <Rating stars={drink.note} maxStars={5} size={20} />
               </TouchableOpacity>
             ))}
         </View>
       </ScrollView>
       <View style={{ marginTop: 5, marginBottom: 5 }}>
         <Button
-          onPress={() => navigation.navigate("Ajouter boisson")}
+          onPress={() =>
+            navigation.navigate("Ajouter boisson", {
+              params: { type: "biere" },
+            })
+          }
           style={styles.button}>
           Ajouter une bière
         </Button>
