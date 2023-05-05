@@ -11,15 +11,16 @@
   "dependencies": {
     "@react-navigation/native": "^6.1.6",
     "@react-navigation/native-stack": "^6.9.12",
-    "expo": "^48.0.15",
+    "expo": "^48.0.16",
     "expo-image-picker": "^14.1.1",
     "expo-status-bar": "~1.4.4",
     "firebase": "^9.21.0",
     "react": "^18.2.0",
     "react-hook-form": "^7.43.9",
     "react-native": "^0.71.7",
-    "react-native-paper": "^5.7.0",
-    "react-native-stock-star-rating": "^1.0.6"
+    "react-native-paper": "^5.7.2",
+    "react-native-stock-star-rating": "^1.0.6",
+    "react-native-vector-icons": "^9.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
