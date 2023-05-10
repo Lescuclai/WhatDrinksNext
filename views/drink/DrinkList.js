@@ -1,30 +1,34 @@
 import React, { useState, useEffect } from "react";
-import { Button } from "react-native-paper";
+import { Text } from "react-native-paper";
 import { db } from "../../firebase";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { Rating } from "react-native-stock-star-rating";
+import CustomButton from "../../components/CustomButton";
 
 import {
   View,
   StyleSheet,
   Image,
-  Text,
   ScrollView,
   TouchableOpacity,
 } from "react-native";
+import { useUserContext } from "../../providers/UserProvider";
 
 import Header from "../homePage/Header";
 
 import foam from "../../assets/hop.jpg";
 
 export default function DrinkList({ navigation, route }) {
+  const user = useUserContext();
   const { params } = route.params;
   const [drinks, setDrinks] = useState();
+  const userId = user.id;
   useEffect(() => {
     const get = async () => {
       const q = query(
         collection(db, "drinks"),
-        where("type", "==", params.type)
+        where("type", "==", params.type),
+        where("userId", "==", userId)
       );
       try {
         const querySnapshot = await getDocs(q);
@@ -34,16 +38,26 @@ export default function DrinkList({ navigation, route }) {
       }
     };
     get();
-  }, []);
+  }, [user, drinks]);
   return (
     <View style={styles.container}>
       <Header
         backgroundImage={foam}
         title={`${params.type.charAt(0).toUpperCase() + params.type.slice(1)}s`}
+        navigation={navigation}
       />
       <ScrollView>
         <View style={styles.listContainer}>
-          {drinks &&
+          {!user.id ? (
+            <Text style={styles.text} variant='bodyLarge'>
+              Tu dois être connecté pour voir la liste de tes boissons.
+            </Text>
+          ) : drinks === undefined || drinks.length === 0 ? (
+            <Text style={styles.text} variant='bodyLarge'>
+              Tu n'as pas encore enregistré de boisson. Enregistre en une pour
+              la voir apparaitre ici.
+            </Text>
+          ) : (
             drinks.map((drink) => (
               <TouchableOpacity
                 key={drink.nom + drink.createAt}
@@ -64,10 +78,11 @@ export default function DrinkList({ navigation, route }) {
                 <Text style={{ textAlign: "center" }}>{drink.nom}</Text>
                 <Rating stars={drink.note} maxStars={5} size={20} />
               </TouchableOpacity>
-            ))}
+            ))
+          )}
         </View>
       </ScrollView>
-      <View style={{ marginTop: 5, marginBottom: 5 }}>
+      {/* <View style={{ marginTop: 5, marginBottom: 5 }}>
         <Button
           onPress={() =>
             navigation.navigate("Ajouter boisson", {
@@ -77,7 +92,16 @@ export default function DrinkList({ navigation, route }) {
           style={styles.button}>
           Ajouter une bière
         </Button>
-      </View>
+      </View> */}
+      <CustomButton
+        mode='contained'
+        title='Ajouter une bière'
+        onPressFunc={() =>
+          navigation.navigate("Ajouter boisson", {
+            params: { type: "biere" },
+          })
+        }
+      />
     </View>
   );
 }
@@ -92,5 +116,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-evenly",
+  },
+  text: {
+    margin: 20,
   },
 });

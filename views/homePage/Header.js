@@ -1,41 +1,29 @@
-import React, { useState } from "react";
+import React from "react";
 import { StyleSheet, Text, View, ImageBackground } from "react-native";
-import { IconButton } from "react-native-paper";
-import AuthModal from "../../components/AuthModal";
+import AuthMenu from "../../components/AuthMenu";
 
-import Icon from "react-native-vector-icons/FontAwesome";
-
-export default function Header(props) {
-  const [visible, setVisible] = React.useState(false);
-
-  const showModal = () => setVisible(true);
-  const hideModal = () => setVisible(false);
+export default function Header({ navigation, backgroundImage, title }) {
   return (
-    <View style={styles.titleContainer}>
-      <ImageBackground
-        source={props.backgroundImage}
-        style={styles.titleBackgroud}>
-        <Text style={styles.titleText}>{props.title}</Text>
-        <AuthModal hideModal={hideModal} visible={visible}>
-          <IconButton
-            icon='account'
-            mode='contained'
-            style={{ position: "absolute", right: 5 }}
-            onPress={showModal}
-          />
-        </AuthModal>
+    <View style={{ position: "relative", zIndex: 99 }}>
+      <ImageBackground source={backgroundImage} style={styles.titleBackgroud}>
+        <View style={styles.container}>
+          <Text style={styles.titleText}>{title}</Text>
+          <AuthMenu navigation={navigation} />
+        </View>
       </ImageBackground>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    alignItems: "stretch",
+  container: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingLeft: 40,
+    paddingRight: 40,
   },
   titleBackgroud: {
     height: 100,
-    flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -43,5 +31,6 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 32,
     fontWeight: "bold",
+    flexGrow: 1,
   },
 });

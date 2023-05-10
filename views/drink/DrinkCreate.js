@@ -7,11 +7,15 @@ import { addDoc, collection } from "firebase/firestore";
 import { db } from "../../firebase";
 import { RatingInput } from "react-native-stock-star-rating";
 import upload from "../../firebase/upload";
+import CustomInput from "../../components/CustomInput";
+import CustomButton from "../../components/CustomButton";
+import { useUserContext } from "../../providers/UserProvider";
 
 export default function DrinkCreate({ route }) {
   const [image, setImage] = useState(null);
   const [rating, setRating] = React.useState(0);
   const { params } = route.params;
+  const user = useUserContext();
 
   const {
     control,
@@ -31,15 +35,22 @@ export default function DrinkCreate({ route }) {
     },
   });
   const onSave = async (data) => {
+    const userId = user.id;
+
+    let url = null;
     try {
-      const response = await fetch(image);
-      const blob = await response.blob();
-      const url = await upload(blob);
+      if (image) {
+        const response = await fetch(image);
+        const blob = await response.blob();
+        url = await upload(blob);
+      }
+
       await addDoc(collection(db, "drinks"), {
         ...data,
         type: params.type,
+        userId,
         image: url,
-        note: rating,
+        // note: rating,
         createAt: Date.now(),
       });
     } catch (error) {
@@ -61,13 +72,14 @@ export default function DrinkCreate({ route }) {
   };
 
   const data = [
-    {
-      label: "Note",
-      key: "note",
-    },
+    // {
+    //   label: "Note",
+    //   key: "note",
+    // },
     {
       label: "Nom",
       key: "nom",
+      require: true,
     },
     {
       label: "Producteur",
@@ -96,6 +108,7 @@ export default function DrinkCreate({ route }) {
     {
       label: "Commentaire",
       key: "commentaire",
+      multiline: true,
     },
   ];
   return (
@@ -107,7 +120,6 @@ export default function DrinkCreate({ route }) {
             alignItems: "center",
             justifyContent: "center",
             margin: 20,
-            marginBottom: 20,
           }}>
           <Button mode='elevated' onPress={pickImage}>
             Choisir une photo
@@ -115,53 +127,46 @@ export default function DrinkCreate({ route }) {
           {image && <Image source={{ uri: image }} style={styles.image} />}
         </View>
 
-        {data.map(({ label, key }) => {
+        <Controller
+          control={control}
+          rules={{
+            required: true,
+          }}
+          name='note'
+          render={({ field: { onChange, onBlur, value } }) => (
+            <View style={styles.container}>
+              <Text>Note</Text>
+              <RatingInput
+                rating={rating}
+                setRating={setRating}
+                size={30}
+                maxStars={5}
+                bordered={false}
+              />
+            </View>
+          )}
+        />
+
+        {data.map(({ label, key, require, multiline }) => {
           return (
             <View key={key}>
-              <Controller
+              <CustomInput
                 control={control}
-                rules={{
-                  required: key === "nom" && true,
-                }}
                 name={key}
-                render={({ field: { onChange, onBlur, value } }) =>
-                  key === "note" ? (
-                    <View style={styles.container}>
-                      <Text>Note</Text>
-                      <RatingInput
-                        rating={rating}
-                        setRating={setRating}
-                        size={30}
-                        maxStars={5}
-                        bordered={false}
-                      />
-                    </View>
-                  ) : (
-                    <TextInput
-                      label={label === "Nom" ? `${label}*` : label}
-                      contained
-                      style={styles.input}
-                      onBlur={onBlur}
-                      onChangeText={(value) => onChange(value)}
-                      value={value}
-                      multiline={key === "commentaire"}
-                      error={Boolean(errors.root)}
-                    />
-                  )
-                }
+                label={require ? `${label}*` : label}
+                rules={require && { required: "Le champ est recquis" }}
+                style={styles.input}
+                multiline={multiline}
               />
-              {errors.key && (
-                <Text style={{ fontSize: 50, margin: "15px" }}>
-                  This is required.
-                </Text>
-              )}
             </View>
           );
         })}
       </View>
-      <Button onPress={handleSubmit(onSave)} style={styles.button}>
-        Envoyer
-      </Button>
+      <CustomButton
+        mode='contained'
+        title='Envoyer'
+        onPressFunc={handleSubmit(onSave)}
+      />
     </ScrollView>
   );
 }
