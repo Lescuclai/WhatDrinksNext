@@ -12,6 +12,8 @@ export default function CustomInput({
   rules = {},
   style = {},
   multiline = false,
+  percent = false,
+  mdp = false,
 }) {
   return (
     <Controller
@@ -25,9 +27,13 @@ export default function CustomInput({
             secureTextEntry={secureTextEntry}
             onChangeText={onChange}
             right={
-              name === "password" && (
-                <TextInput.Icon icon='eye' onPress={() => visibleToggle()} />
-              )
+              (percent && <TextInput.Affix text='%' />) ||
+              (mdp && (
+                <TextInput.Icon
+                  icon='eye'
+                  onPress={() => visibleToggle() || false}
+                />
+              ))
             }
             value={value}
             style={style}
@@ -36,8 +42,8 @@ export default function CustomInput({
           {error && (
             <Text
               style={{
-                color: { error } ? "purple" : "black",
-                fontWeight: { error } ? 800 : 600,
+                color: "purple",
+                fontWeight: 800,
                 marginLeft: 5,
                 marginBottom: 15,
               }}>

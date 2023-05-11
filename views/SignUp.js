@@ -44,6 +44,7 @@ function SignUp({ navigation }) {
         label='Password'
         secureTextEntry={!isVisible}
         rules={{ required: "Le champ est recquis" }}
+        mdp
       />
       <CustomInput
         control={control}
