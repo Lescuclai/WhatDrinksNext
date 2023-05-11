@@ -13,7 +13,6 @@ import { useUserContext } from "../../providers/UserProvider";
 
 export default function DrinkCreate({ route }) {
   const [image, setImage] = useState(null);
-  const [rating, setRating] = React.useState(0);
   const { params } = route.params;
   const user = useUserContext();
 
@@ -31,31 +30,30 @@ export default function DrinkCreate({ route }) {
       aromes: "",
       alcool: "",
       commentaire: "",
-      note: 0,
+      note: null,
     },
   });
   const onSave = async (data) => {
     const userId = user.id;
-
+    console.log("data", data);
     let url = null;
-    try {
-      if (image) {
-        const response = await fetch(image);
-        const blob = await response.blob();
-        url = await upload(blob);
-      }
+    // try {
+    //   if (image) {
+    //     const response = await fetch(image);
+    //     const blob = await response.blob();
+    //     url = await upload(blob);
+    //   }
 
-      await addDoc(collection(db, "drinks"), {
-        ...data,
-        type: params.type,
-        userId,
-        image: url,
-        // note: rating,
-        createAt: Date.now(),
-      });
-    } catch (error) {
-      console.log("error onSave", error);
-    }
+    //   await addDoc(collection(db, "drinks"), {
+    //     ...data,
+    //     type: params.type,
+    //     userId,
+    //     image: url,
+    //     createAt: Date.now(),
+    //   });
+    // } catch (error) {
+    //   console.log("error onSave", error);
+    // }
   };
 
   const pickImage = async () => {
@@ -72,10 +70,6 @@ export default function DrinkCreate({ route }) {
   };
 
   const data = [
-    // {
-    //   label: "Note",
-    //   key: "note",
-    // },
     {
       label: "Nom",
       key: "nom",
@@ -96,6 +90,7 @@ export default function DrinkCreate({ route }) {
     {
       label: "Année",
       key: "annee",
+      require: params.type === "vin",
     },
     {
       label: "Arômes",
@@ -104,6 +99,7 @@ export default function DrinkCreate({ route }) {
     {
       label: "Degrès d'alcool",
       key: "alcool",
+      percent: true,
     },
     {
       label: "Commentaire",
@@ -111,6 +107,7 @@ export default function DrinkCreate({ route }) {
       multiline: true,
     },
   ];
+
   return (
     <ScrollView>
       <View style={styles.formContainer}>
@@ -129,25 +126,34 @@ export default function DrinkCreate({ route }) {
 
         <Controller
           control={control}
-          rules={{
-            required: true,
-          }}
+          rules={require && { required: "Le champ est recquis" }}
           name='note'
-          render={({ field: { onChange, onBlur, value } }) => (
+          render={({ field: { onChange, value }, fieldState: { error } }) => (
             <View style={styles.container}>
-              <Text>Note</Text>
+              <Text>Note*</Text>
               <RatingInput
-                rating={rating}
-                setRating={setRating}
+                rating={value}
                 size={30}
                 maxStars={5}
                 bordered={false}
+                setRating={onChange}
               />
+              {error && (
+                <Text
+                  style={{
+                    color: "purple",
+                    fontWeight: 800,
+                    marginLeft: 5,
+                    marginBottom: 15,
+                  }}>
+                  {error.message}
+                </Text>
+              )}
             </View>
           )}
         />
 
-        {data.map(({ label, key, require, multiline }) => {
+        {data.map(({ label, key, require, multiline, percent }) => {
           return (
             <View key={key}>
               <CustomInput
@@ -157,6 +163,7 @@ export default function DrinkCreate({ route }) {
                 rules={require && { required: "Le champ est recquis" }}
                 style={styles.input}
                 multiline={multiline}
+                percent={percent}
               />
             </View>
           );
