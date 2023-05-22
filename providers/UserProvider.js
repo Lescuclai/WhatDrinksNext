@@ -9,8 +9,10 @@ const UserProvider = ({ children }) => {
     const auth = getAuth();
     onAuthStateChanged(auth, (user) => {
       if (user) {
+        console.log("user ok");
         setUser({ id: user.uid });
       } else {
+        console.log("user NOK");
         setUser({ id: null });
       }
     });

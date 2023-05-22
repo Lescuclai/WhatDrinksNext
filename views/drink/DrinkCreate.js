@@ -11,7 +11,7 @@ import CustomInput from "../../components/CustomInput";
 import CustomButton from "../../components/CustomButton";
 import { useUserContext } from "../../providers/UserProvider";
 
-export default function DrinkCreate({ route }) {
+export default function DrinkCreate({ route, navigation }) {
   const [image, setImage] = useState(null);
   const { params } = route.params;
   const user = useUserContext();
@@ -35,25 +35,26 @@ export default function DrinkCreate({ route }) {
   });
   const onSave = async (data) => {
     const userId = user.id;
-    console.log("data", data);
     let url = null;
-    // try {
-    //   if (image) {
-    //     const response = await fetch(image);
-    //     const blob = await response.blob();
-    //     url = await upload(blob);
-    //   }
-
-    //   await addDoc(collection(db, "drinks"), {
-    //     ...data,
-    //     type: params.type,
-    //     userId,
-    //     image: url,
-    //     createAt: Date.now(),
-    //   });
-    // } catch (error) {
-    //   console.log("error onSave", error);
-    // }
+    try {
+      if (image) {
+        const response = await fetch(image);
+        const blob = await response.blob();
+        url = await upload(blob);
+      }
+      await addDoc(collection(db, "drinks"), {
+        ...data,
+        type: params.type,
+        userId,
+        image: url,
+        createAt: Date.now(),
+      });
+      navigation.navigate("Liste des boissons", {
+        params: { type: "biere" },
+      });
+    } catch (error) {
+      console.log("error onSave", error);
+    }
   };
 
   const pickImage = async () => {
