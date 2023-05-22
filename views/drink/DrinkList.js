@@ -21,24 +21,32 @@ import foam from "../../assets/hop.jpg";
 export default function DrinkList({ navigation, route }) {
   const user = useUserContext();
   const { params } = route.params;
-  const [drinks, setDrinks] = useState();
-  const userId = user.id;
+  const [drinks, setDrinks] = useState([]);
+
   useEffect(() => {
-    const get = async () => {
-      const q = query(
-        collection(db, "drinks"),
-        where("type", "==", params.type),
-        where("userId", "==", userId)
-      );
-      try {
-        const querySnapshot = await getDocs(q);
-        setDrinks(querySnapshot.docs.map((doc) => doc.data()));
-      } catch (e) {
-        setDrinks([]);
+    const unsubscribe = navigation.addListener("focus", () => {
+      const get = async () => {
+        const q = query(
+          collection(db, "drinks"),
+          where("type", "==", params.type),
+          where("userId", "==", user.id)
+        );
+        try {
+          const querySnapshot = await getDocs(q);
+          setDrinks(querySnapshot.docs.map((doc) => doc.data()));
+        } catch (e) {
+          setDrinks([]);
+        }
+      };
+      if (user.id) {
+        get();
       }
-    };
-    get();
-  }, [user, drinks]);
+    });
+
+    // Return the function to unsubscribe from the event so it gets removed on unmount
+    return unsubscribe;
+  }, [navigation, user.id]);
+
   return (
     <View style={styles.container}>
       <Header
@@ -82,20 +90,10 @@ export default function DrinkList({ navigation, route }) {
           )}
         </View>
       </ScrollView>
-      {/* <View style={{ marginTop: 5, marginBottom: 5 }}>
-        <Button
-          onPress={() =>
-            navigation.navigate("Ajouter boisson", {
-              params: { type: "biere" },
-            })
-          }
-          style={styles.button}>
-          Ajouter une bière
-        </Button>
-      </View> */}
       <CustomButton
         mode='contained'
         title='Ajouter une bière'
+        disabled={!user.id}
         onPressFunc={() =>
           navigation.navigate("Ajouter boisson", {
             params: { type: "biere" },

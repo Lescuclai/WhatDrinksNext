@@ -1,7 +1,7 @@
 import { View } from "react-native";
 import { Button } from "react-native-paper";
 
-function CustomButton({ onPressFunc, title, mode }) {
+function CustomButton({ onPressFunc, title, mode, disabled }) {
   return (
     <View
       style={{
@@ -9,7 +9,7 @@ function CustomButton({ onPressFunc, title, mode }) {
         justifyContent: "center",
         margin: 20,
       }}>
-      <Button mode={mode} onPress={onPressFunc}>
+      <Button mode={mode} onPress={onPressFunc} disabled={disabled}>
         {title}
       </Button>
     </View>
