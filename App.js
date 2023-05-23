@@ -6,6 +6,7 @@ import HomePage from "./views/homePage";
 import DrinkList from "./views/drink/DrinkList";
 import Drink from "./views/drink/Drink";
 import DrinkCreate from "./views/drink/DrinkCreate";
+import DrinkUpdate from "./views/drink/DrinkUpdate";
 import Authentification from "./views/Authentification";
 import SignUp from "./views/SignUp";
 import UserProvider from "./providers/UserProvider";
@@ -24,6 +25,7 @@ export default function App() {
               <Screen name='Liste des boissons' component={DrinkList} />
               <Screen name='Boisson' component={Drink} />
               <Screen name='Ajouter boisson' component={DrinkCreate} />
+              <Screen name='Modifier boisson' component={DrinkUpdate} />
               <Screen name='Authentification' component={Authentification} />
               <Screen name='Création de compte' component={SignUp} />
             </Navigator>
