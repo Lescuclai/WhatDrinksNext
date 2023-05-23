@@ -3,64 +3,57 @@ import { useForm, Controller } from "react-hook-form";
 import { Button } from "react-native-paper";
 import { View, StyleSheet, Text, Image, ScrollView } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import { addDoc, collection, setDoc } from "firebase/firestore";
+import {
+  doc,
+  collection,
+  getFirestore,
+  getDoc,
+  updateDoc,
+  deleteDoc,
+} from "firebase/firestore";
+
 import { db } from "../../firebase";
 import { RatingInput } from "react-native-stock-star-rating";
-import upload from "../../firebase/upload";
 import CustomInput from "../../components/CustomInput";
 import CustomButton from "../../components/CustomButton";
-import { useUserContext } from "../../providers/UserProvider";
 import getDrinkData from "../../data/drink";
 
-export default function DrinkCreate({ route, navigation }) {
+export default function DrinkUpdate({ route, navigation }) {
   const [image, setImage] = useState(null);
   const { params } = route.params;
-  const user = useUserContext();
   const data = getDrinkData(params);
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-  } = useForm({
-    defaultValues: {
-      nom: "",
-      producteur: "",
-      origine: "",
-      categorie: "",
-      annee: "",
-      aromes: "",
-      alcool: "",
-      commentaire: "",
-      note: null,
+
+  const { handleSubmit, control } = useForm({
+    defaultValues: async () => {
+      const firestore = getFirestore();
+      const ref = doc(collection(firestore, "drinks"), params.id);
+      return (await getDoc(ref)).data();
     },
   });
-  const onSave = async (data) => {
-    const userId = user.id;
-    let url = null;
+
+  const onEdit = async (data) => {
     try {
-      if (image) {
-        const response = await fetch(image);
-        const blob = await response.blob();
-        url = await upload(blob);
-      }
-      const docRef = await addDoc(collection(db, "drinks"), {
-        ...data,
-        type: params.type,
-        userId,
-        image: url,
-        createAt: Date.now(),
-      });
-
-      await setDoc(docRef, { id: docRef.id }, { merge: true });
-
+      const docRef = await doc(db, "drinks", params.id);
+      await updateDoc(docRef, { ...data, id: params.id });
       navigation.navigate("Liste des boissons", {
         params: { type: params.type },
       });
-    } catch (error) {
-      console.log("error onSave", error);
+    } catch (err) {
+      console.log("error, can't modify data", err);
     }
   };
 
+  const onDelete = async (data) => {
+    try {
+      const docRef = await doc(db, "drinks", params.id);
+      await deleteDoc(docRef, { ...data, id: params.id });
+      navigation.navigate("Liste des boissons", {
+        params: { type: params.type },
+      });
+    } catch (err) {
+      console.log("error, can't delete data", err);
+    }
+  };
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
@@ -135,11 +128,18 @@ export default function DrinkCreate({ route, navigation }) {
           );
         })}
       </View>
-      <CustomButton
-        mode='contained'
-        title='Envoyer'
-        onPressFunc={handleSubmit(onSave)}
-      />
+      <View style={styles.buttons}>
+        <CustomButton
+          mode='contained'
+          title='Modifier'
+          onPressFunc={handleSubmit(onEdit)}
+        />
+        <CustomButton
+          mode='outlined'
+          title='Suprimer'
+          onPressFunc={handleSubmit(onDelete)}
+        />
+      </View>
     </ScrollView>
   );
 }
@@ -161,6 +161,11 @@ const styles = StyleSheet.create({
   },
   input: {
     margin: 5,
+  },
+  buttons: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "center",
   },
   button: {
     marginBottom: 20,

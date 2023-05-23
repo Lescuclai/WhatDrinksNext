@@ -35,16 +35,6 @@ function Authentification({ navigation }) {
     <View>
       <CustomInput
         control={control}
-        name='password'
-        visibleToggle={() => setIsVisible(!isVisible)}
-        isVisible={isVisible}
-        label='Password'
-        secureTextEntry={!isVisible}
-        rules={{ required: "Le champ est recquis" }}
-        mdp
-      />
-      <CustomInput
-        control={control}
         name='email'
         label='Email'
         rules={{
@@ -54,6 +44,16 @@ function Authentification({ navigation }) {
             message: "Format invalide",
           },
         }}
+      />
+      <CustomInput
+        control={control}
+        name='password'
+        visibleToggle={() => setIsVisible(!isVisible)}
+        isVisible={isVisible}
+        label='Mot de passe'
+        secureTextEntry={!isVisible}
+        rules={{ required: "Le champ est recquis" }}
+        mdp
       />
 
       {Boolean(errors.root) && (

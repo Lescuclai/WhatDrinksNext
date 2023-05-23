@@ -31,6 +31,7 @@ export default function DrinkList({ navigation, route }) {
           where("type", "==", params.type),
           where("userId", "==", user.id)
         );
+
         try {
           const querySnapshot = await getDocs(q);
           setDrinks(querySnapshot.docs.map((doc) => doc.data()));
@@ -38,7 +39,8 @@ export default function DrinkList({ navigation, route }) {
           setDrinks([]);
         }
       };
-      if (user.id) {
+
+      if (user) {
         get();
       }
     });
@@ -46,7 +48,6 @@ export default function DrinkList({ navigation, route }) {
     // Return the function to unsubscribe from the event so it gets removed on unmount
     return unsubscribe;
   }, [navigation, user.id]);
-
   return (
     <View style={styles.container}>
       <Header
@@ -75,8 +76,8 @@ export default function DrinkList({ navigation, route }) {
                   marginVertical: 15,
                 }}
                 onPress={() =>
-                  navigation.navigate("Boisson", {
-                    params: { type: params.type },
+                  navigation.navigate("Modifier boisson", {
+                    params: { type: params.type, id: drink.id },
                   })
                 }>
                 <Image

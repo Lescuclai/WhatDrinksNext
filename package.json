@@ -14,14 +14,15 @@
     "expo": "~48.0.15",
     "expo-image-picker": "^14.1.1",
     "expo-status-bar": "~1.4.4",
-    "expo-updates": "~0.16.4",
+    "expo-system-ui": "^2.2.1",
     "firebase": "^9.22.0",
     "react": "18.2.0",
     "react-hook-form": "^7.43.9",
     "react-native": "0.71.8",
     "react-native-dotenv": "^3.4.8",
     "react-native-paper": "^5.8.0",
-    "react-native-stock-star-rating": "^1.0.6"
+    "react-native-stock-star-rating": "^1.0.6",
+    "expo-updates": "~0.16.4"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
