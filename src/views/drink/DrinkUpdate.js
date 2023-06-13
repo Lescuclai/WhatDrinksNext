@@ -5,12 +5,12 @@ import { View, StyleSheet, Text, Image, ScrollView } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import {
   doc,
-  collection,
-  getFirestore,
   getDoc,
   updateDoc,
   deleteDoc,
 } from "firebase/firestore";
+import { getStorage, ref, deleteObject } from "firebase/storage";
+import upload from "../../firebase/upload";
 
 import { db } from "../../firebase";
 import { RatingInput } from "react-native-stock-star-rating";
@@ -18,23 +18,37 @@ import CustomInput from "../../components/CustomInput";
 import CustomButton from "../../components/CustomButton";
 import getDrinkData from "../../data/drink";
 
+
+
 export default function DrinkUpdate({ route, navigation }) {
+  const storage = getStorage();
   const [image, setImage] = useState(null);
   const { params } = route.params;
   const data = getDrinkData(params);
+  const docRef = doc(db, "drinks", params.id);
 
   const { handleSubmit, control } = useForm({
     defaultValues: async () => {
-      const firestore = getFirestore();
-      const ref = doc(collection(firestore, "drinks"), params.id);
-      return (await getDoc(ref)).data();
+      const drinkValue=(await getDoc(docRef)).data();
+      setImage(drinkValue.image)
+      return drinkValue;
     },
   });
 
   const onEdit = async (data) => {
+      let url = null;
     try {
-      const docRef = await doc(db, "drinks", params.id);
-      await updateDoc(docRef, { ...data, id: params.id, image });
+       if (image) {
+        const response = await fetch(image);
+        const blob = await response.blob();
+        url = await upload(blob);
+      }
+      if(url){
+        await updateDoc(docRef, { ...data, id: params.id, image:url})
+      }else{
+        await updateDoc(docRef, { ...data, id: params.id})
+      }
+      
       navigation.navigate("Liste des boissons", {
         params: { type: params.type },
       });
@@ -42,7 +56,7 @@ export default function DrinkUpdate({ route, navigation }) {
       console.log("error, can't modify data", err);
     }
   };
-
+  
   const onDelete = async (data) => {
     try {
       const docRef = await doc(db, "drinks", params.id);
@@ -50,6 +64,12 @@ export default function DrinkUpdate({ route, navigation }) {
       navigation.navigate("Liste des boissons", {
         params: { type: params.type },
       });
+      if(image){
+        const imgUrl=image.split("/").pop().split("?").shift();
+        const imgRef = ref(storage, imgUrl);
+        await deleteObject(imgRef)
+      } 
+
     } catch (err) {
       console.log("error, can't delete data", err);
     }
