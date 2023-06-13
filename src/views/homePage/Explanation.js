@@ -26,7 +26,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   subTitle: {
-    marginHorizontal: 75,
+    marginHorizontal: 70,
     textAlign: "center",
     color: "#542201",
     fontWeight: "bold",
